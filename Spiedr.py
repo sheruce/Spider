@@ -6,7 +6,7 @@ headers = {
 r = requests.get('https://book.douban.com', headers=headers)
 content = r.text
 pattern = re.compile(
-    '<li.*?cover.*?href="(.*?)".*?title="(.*?)".*?more-meta.*?author">(.*?)</span>.*?year">(.*?)</span>.*?</li>', re.S)
+    '^<li.*?cover.*?href="(.*?)".*?title="(.*?)".*?more-meta.*?author">(.*?)</span>.*?year">(.*?)</span>.*?</li>$', re.S)
 results = re.findall(pattern, content)
 print(r.text)
 print(results)

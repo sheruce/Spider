@@ -1,7 +1,6 @@
-import re
+from selenium import webdriver
 
-content = 'douban.html'
-pattern = re.compile(
-    '<li.*?cover.*?href="(.*?)".*?title="(.*?)".*?more-meta.*?author">(.*?)</span>.*?year">(.*?)</span>.*?</li>', re.S)
-results = re.findall(pattern, content)
-print(results)
+browser = webdriver.Chrome()
+browser.get('https://www.taobao.com')
+print(browser.page_source)
+browser.close()
