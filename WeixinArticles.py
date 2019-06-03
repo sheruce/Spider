@@ -1,6 +1,8 @@
 import requests
 from urllib.parse import urlencode
 from requests.exceptions import ConnectionError
+from pyquery import PyQuery as pq
+import re
 
 base_url = 'https://weixin.sogou.com/weixin?'
 headers = {
@@ -10,6 +12,18 @@ headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36'
 }
 keyword = '风景'
+proxy_pool_url = 'https"//127.0.0.1:5000/get'
+proxy = None
+
+
+def get_proxy():
+    try:
+        response = requests.get(proxy_pool_url)
+        if response.status_code == 200:
+            return response.text
+        return None
+    except ConnectionError:
+        return None
 
 
 def get_index(keyword, page):
@@ -25,20 +39,43 @@ def get_index(keyword, page):
 
 
 def get_html(url):
+    global proxy
     try:
-        response = requests.get(url, allow_redirects=False, headers=headers)
+        if proxy:
+            proxies = {
+                'http': 'https://' + proxy
+            }
+            response = requests.get(url, allow_redirects=False, headers=headers, proxies=proxies)
+        else:
+            response = requests.get(url, allow_redirects=False, headers=headers)
         if response.status_code == 200:
             return response.text
         if response.status_code == 302:
+            proxy = get_proxy()
+            if proxy:
+                pring('Using proxy', proxy)
+                return get_html(url)
+            else:
+                print('Get proxy failed')
+                return None
             print('302')
     except ConnectionError:
+        proxy = get_proxy()
         return get_html(url)
+
+
+def parse_index(html):
+    pattern = re.compile('news_box">.*?txt-box">.*?data-share="(.*?)">', re.S)
+    items = re.findall(pattern, html)
+    for item in items:
+        print(item)
 
 
 def main():
     for page in range(1, 101):
-        html=get_index(keyword, page)
-        print(html)
+        html = get_index(keyword, page)
+        if html:
+            parse_index(html)
 
 
 if __name__ == '__main__':

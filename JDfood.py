@@ -28,12 +28,8 @@ def search():
 
 def next_page(page_number):
     try:
-        """*input = wait.until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, '#J_bottomPage > span.p-skip > input'))
-        )"""
         submit = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, '#J_bottomPage > span.p-num > a.pn-next')))
-        """input.clear()
-        input.send_keys(page_number)"""
+
         submit.click()
         wait.until(
             EC.text_to_be_present_in_element((By.CSS_SELECTOR, '#J_bottomPage > span.p-num > a.curr'),
